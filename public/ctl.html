@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+
+        <title>HTML</title>
+        <meta name="description" content="" />
+        <meta name="author" content="cloudsben" />
+
+        <link href="/css/bootstrap.min.css" rel="stylesheet">
+        <script src="/js/jquery.js"></script>
+        <script src="/js/bootstrap.min.js"></script>
+    </head>
+	<style type="text/css" media="screen">
+	footer{text-align: center;}
+	h3{text-align: center;}
+	#ctl{text-align: center; margin-top: 20px;}
+	</style>
+    <body>
+        <div>
+			<h3>在线交流</h3>
+			<hr>
+			<div class="container-fluid">
+			  <div class="row-fluid">
+			    <div class="span3">
+					<div id="content">
+						
+					</div>
+					<form class="form-search" id="inputMessage">
+						<input id="message" type="text" class="input-medium search-query">
+						<button id="send" type="button" class="btn btn-success">发送</button>
+					</form>
+			    </div>
+			    <div class="span9">
+					<div id="img">
+					</div>
+	  				<div id="ctl">
+	  					<button id="pre" type="button" class="btn btn-primary">上一张</button>
+	  					<button id="next" type="button" class="btn btn-primary">下一张</button>
+	  				</div>
+			    </div>
+			  </div>
+			</div>
+			<hr>
+            <footer>
+				<address>
+				  <strong>cloudsben</strong><br>
+				  <a href="mailto:cloudsben@gmail.com">cloudsben@gmail.com</a>
+				</address>
+            </footer>
+        </div>
+        <script src="/socket.io/socket.io.js"></script>
+        <script type="text/javascript">
+		var obj = new Array();
+		var socket = io.connect('http://192.168.200.12:3000');
+		socket.on('getimg',function(data){
+			obj = data;
+			// $('#img')fadeIn('slow',function(){
+			// 				$('#img').html('<img id="'+0+'" src="ppt/'+data.img[0]+'" />');
+			// 			});
+			$('#img').html('<img id="'+0+'" src="ppt/'+data.img[0]+'" />');
+			socket.emit('sendimg', {img:data.img[0]});
+		});
+		$('#send').click(function(){
+			var messageTxt = $('#message').val();
+			$('#content').append('<br>'+messageTxt);
+			$('#message').val('').focus();
+			socket.emit('get',{message:messageTxt});
+		});
+		
+		$('#next').click(function(){
+			var count = parseInt($('#img > img').attr('id'));
+			if(count == obj.img.length -1){
+				count = 0;
+			}else{
+				count = count + 1;
+			}
+			console.log(obj.img.length,count);
+			$('#img').html('<img id="'+count+'" src="ppt/'+obj.img[count]+'" />');
+			socket.emit('sendimg', {img:obj.img[count]});
+		});
+		
+		$('#pre').click(function(){
+			var count = parseInt($('#img > img').attr('id'));
+			if(count == 0){
+				count = obj.img.length - 1;
+			}else{
+				count = count-1;
+			}
+			$('#img').html('<img id="'+count+'" src="ppt/'+obj.img[count]+'" />');
+			socket.emit('sendimg', {img:obj.img[count]});
+		});
+		
+		socket.on('send',function(data){
+			$('#content').append('<br>'+data.message);
+		});
+		
+        </script>
+    </body>
+</html>
+
+        <link href="css/bootstrap.min.css" rel="stylesheet">
